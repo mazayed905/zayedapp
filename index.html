@@ -1,0 +1,1964 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+
+  <!-- iPhone / iOS "Add to Home Screen" (Web App) -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="WL Planner" />
+
+  
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
+  <link rel="icon" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" sizes="512x512" href="icon-512.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<title>برنامج قياس كتلة الجسم وخطة تخسيس 6 شهور (مشي فقط)</title>
+
+  <style>
+    /* =========================
+       Theme variables
+    ========================== */
+    :root{
+      --bg:#0b0f14; --card:#111827; --muted:#9ca3af; --text:#e5e7eb;
+      --pri:#22c55e; --sec:#60a5fa; --warn:#f59e0b; --bad:#ef4444;
+      --bd:rgba(255,255,255,.12); --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --text:#111827;
+        --pri:#16a34a; --sec:#2563eb; --warn:#b45309; --bad:#dc2626;
+        --bd:rgba(17,24,39,.12); --shadow: 0 10px 26px rgba(17,24,39,.12);
+      }
+    }
+    /* Manual override */
+    html[data-theme="dark"]{
+      --bg:#0b0f14; --card:#111827; --muted:#9ca3af; --text:#e5e7eb;
+      --pri:#22c55e; --sec:#60a5fa; --warn:#f59e0b; --bad:#ef4444;
+      --bd:rgba(255,255,255,.12); --shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+    html[data-theme="light"]{
+      --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --text:#111827;
+      --pri:#16a34a; --sec:#2563eb; --warn:#b45309; --bad:#dc2626;
+      --bd:rgba(17,24,39,.12); --shadow: 0 10px 26px rgba(17,24,39,.12);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--sans); background:var(--bg); color:var(--text);
+      line-height:1.55;
+      padding-bottom: 0; /* will be increased on mobile when dock is visible */
+    }
+
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter:saturate(160%) blur(10px);
+      background:color-mix(in oklab, var(--bg) 75%, transparent);
+      border-bottom:1px solid var(--bd);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:14px 16px;}
+    .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    }
+    .title{display:flex; flex-direction:column; gap:2px}
+    .title h1{font-size:18px; margin:0}
+    .title p{margin:0; color:var(--muted); font-size:12.5px}
+
+    .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-end}
+    .chip{
+      border:1px solid var(--bd); background:var(--card); color:var(--text);
+      padding:9px 12px; border-radius:999px; cursor:pointer;
+      font-size:13px;
+    }
+    .chip:active{transform:translateY(1px)}
+    .chip strong{font-family:var(--mono); font-size:12.5px}
+    .chip[aria-pressed="true"]{
+      border-color: color-mix(in oklab, var(--sec) 55%, var(--bd));
+      outline:2px solid color-mix(in oklab, var(--sec) 25%, transparent);
+    }
+
+    .tabs{display:flex; gap:8px; flex-wrap:wrap}
+    .tab{
+      border:1px solid var(--bd); background:var(--card); color:var(--text);
+      padding:9px 12px; border-radius:999px; cursor:pointer;
+      font-size:13px;
+    }
+    .tab[aria-selected="true"]{
+      border-color: color-mix(in oklab, var(--pri) 55%, var(--bd));
+      outline:2px solid color-mix(in oklab, var(--pri) 25%, transparent);
+    }
+
+    main{padding:18px 0 14px}
+    .grid{
+      display:grid; gap:14px;
+      grid-template-columns: 1.15fr .85fr;
+      align-items:start;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+
+    .card{
+      background:var(--card); border:1px solid var(--bd);
+      border-radius:var(--radius); padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .card h2{margin:0 0 10px; font-size:16px}
+    .muted{color:var(--muted)}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width: 520px){ .row{grid-template-columns:1fr} }
+    label{display:block; font-size:12.5px; color:var(--muted); margin:0 0 6px}
+    input, select, textarea{
+      width:100%;
+      padding:10px 11px;
+      border-radius:12px;
+      border:1px solid var(--bd);
+      background:color-mix(in oklab, var(--card) 90%, #0000);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    input:focus, select:focus, textarea:focus{
+      outline:2px solid color-mix(in oklab, var(--sec) 30%, transparent);
+      border-color: color-mix(in oklab, var(--sec) 50%, var(--bd));
+    }
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    button{
+      border:1px solid var(--bd);
+      background:color-mix(in oklab, var(--card) 90%, #0000);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13.5px;
+    }
+    button.primary{
+      background: linear-gradient(135deg, color-mix(in oklab, var(--pri) 55%, #0000), color-mix(in oklab, var(--sec) 45%, #0000));
+      border-color: color-mix(in oklab, var(--pri) 45%, var(--bd));
+    }
+    button.danger{border-color: color-mix(in oklab, var(--bad) 55%, var(--bd))}
+    button:active{transform:translateY(1px)}
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px; border:1px solid var(--bd); border-radius:999px;
+      font-size:12.5px; color:var(--text);
+      background: color-mix(in oklab, var(--card) 92%, #0000);
+    }
+    .kpis{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px}
+    @media (max-width: 820px){ .kpis{grid-template-columns:repeat(2, 1fr)} }
+    @media (max-width: 520px){ .kpis{grid-template-columns:1fr} }
+    .kpi{
+      border:1px solid var(--bd); border-radius:14px; padding:10px;
+      background:color-mix(in oklab, var(--card) 94%, #0000);
+    }
+    .kpi .v{font-family:var(--mono); font-size:18px}
+    .kpi .t{font-size:12px; color:var(--muted)}
+
+    .note{
+      border-inline-start:4px solid var(--warn);
+      background: color-mix(in oklab, var(--warn) 10%, transparent);
+      padding:10px 12px; border-radius:12px;
+      color:color-mix(in oklab, var(--text) 92%, var(--warn));
+      font-size:13px;
+    }
+    .ok{border-inline-start-color:var(--pri); background: color-mix(in oklab, var(--pri) 10%, transparent);}
+    .bad{border-inline-start-color:var(--bad); background: color-mix(in oklab, var(--bad) 10%, transparent);}
+
+    table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:14px; border:1px solid var(--bd)}
+    thead th{
+      text-align:right; font-size:12px; color:var(--muted);
+      background: color-mix(in oklab, var(--card) 85%, #0000);
+      padding:10px;
+      border-bottom:1px solid var(--bd);
+      position:sticky; top:0;
+    }
+    tbody td{
+      padding:10px; border-bottom:1px solid var(--bd); font-size:13px;
+      vertical-align:top;
+    }
+    tbody tr:last-child td{border-bottom:none}
+
+    [dir="ltr"] thead th{ text-align:left; }
+    [dir="ltr"] .right{ justify-content:flex-start; }
+
+    .small{font-size:12px}
+    .flex{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .right{justify-content:flex-end}
+    .section{display:none}
+    .section.active{display:block}
+    canvas{width:100%; height:240px; border:1px solid var(--bd); border-radius:14px; background:color-mix(in oklab, var(--card) 94%, #0000);}
+    .split{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    @media (max-width: 900px){ .split{grid-template-columns:1fr} }
+
+    /* Meals progress bar */
+    .bar{
+      height:10px;
+      border-radius:999px;
+      border:1px solid var(--bd);
+      background: color-mix(in oklab, var(--card) 92%, #0000);
+      overflow:hidden;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, color-mix(in oklab, var(--pri) 70%, #0000), color-mix(in oklab, var(--sec) 60%, #0000));
+    }
+
+    footer{
+      border-top:1px solid var(--bd);
+      margin-top:18px;
+      padding:14px 0 26px;
+    }
+    .signature{
+      display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+      background: color-mix(in oklab, var(--card) 92%, #0000);
+      border:1px solid var(--bd);
+      border-radius:16px;
+      padding:12px 12px;
+      box-shadow: var(--shadow);
+    }
+    .signature strong{font-size:13.5px}
+    .signature .meta{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      color:var(--muted); font-size:12.5px;
+    }
+    .signature a{color:inherit; text-decoration:none; border-bottom:1px dashed color-mix(in oklab, var(--muted) 55%, transparent)}
+    .signature a:hover{color:color-mix(in oklab, var(--sec) 70%, var(--text))}
+    .ltr{direction:ltr; unicode-bidi:plaintext}
+
+    /* Mobile fixed dock for Language + Theme */
+    .mobileDock{
+      position:fixed;
+      left:0; right:0; bottom:0;
+      z-index:20;
+      display:none;
+      gap:10px;
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      background:color-mix(in oklab, var(--bg) 72%, transparent);
+      border-top:1px solid var(--bd);
+      backdrop-filter:saturate(160%) blur(12px);
+    }
+    .dockBtn{
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--bd);
+      border-radius:14px;
+      padding:11px 10px;
+      background:color-mix(in oklab, var(--card) 92%, #0000);
+      color:var(--text);
+      font-size:13.5px;
+      cursor:pointer;
+    }
+    .dockBtn strong{font-family:var(--mono); font-size:12.5px}
+
+    @media (max-width: 720px){
+      .mobileDock{display:flex}
+      body{padding-bottom:92px}
+      .controls{display:none} /* keep header clean on mobile; dock controls instead */
+    }
+
+    @media print{
+      header{position:static; border:none; background:#fff}
+      body{background:#fff; color:#000; padding-bottom:0}
+      .card{box-shadow:none}
+      .tab,.btns, .no-print, .controls, .mobileDock{display:none !important}
+      a::after{content:" (" attr(href) ")"; font-size:10px}
+      canvas{height:200px}
+      footer{border:none; margin-top:10px}
+      .signature{box-shadow:none}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap topbar">
+    <div class="title" role="banner">
+      <h1 data-i18n="appTitle">برنامج قياس كتلة الجسم + خطة تخسيس وتمارين (6 شهور) — مشي فقط</h1>
+      <p data-i18n="appSubtitle">حسابات تقديرية للتثقيف والمتابعة — ليست بديلاً عن الاستشارة الطبية.</p>
+    </div>
+
+    <!-- Desktop controls -->
+    <div class="controls no-print" aria-label="التحكم">
+      <button id="btnLang" class="chip" aria-pressed="false" title="Language">
+        <span data-i18n="langLabel">اللغة</span>: <strong id="langValue">AR</strong>
+      </button>
+      <button id="btnTheme" class="chip" aria-pressed="false" title="Theme">
+        <span data-i18n="themeLabel">المظهر</span>: <strong id="themeValue">Auto</strong>
+      </button>
+    </div>
+
+    <nav class="tabs" aria-label="التنقل">
+      <button class="tab" data-tab="calc" aria-selected="true" data-i18n="tabCalc">الحاسبة</button>
+      <button class="tab" data-tab="plan" aria-selected="false" data-i18n="tabPlan">خطة 6 شهور</button>
+      <button class="tab" data-tab="meals" aria-selected="false" data-i18n="tabMeals">حاسبة الوجبات</button>
+      <button class="tab" data-tab="track" aria-selected="false" data-i18n="tabTrack">المتابعة</button>
+      <button class="tab" data-tab="export" aria-selected="false" data-i18n="tabExport">الطباعة والتصدير</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ========== CALC ========== -->
+  <section id="calc" class="section active" aria-label="Calculator">
+    <div class="grid">
+      <div class="card">
+        <h2 data-i18n="basicData">البيانات الأساسية</h2>
+        <div class="row">
+          <div>
+            <label for="sex" data-i18n="sex">الجنس</label>
+            <select id="sex">
+              <option value="male" data-i18n="male">ذكر</option>
+              <option value="female" data-i18n="female">أنثى</option>
+            </select>
+          </div>
+          <div>
+            <label for="age" data-i18n="age">العمر (سنة)</label>
+            <input id="age" type="number" inputmode="numeric" min="10" max="90" value="30" />
+          </div>
+          <div>
+            <label for="height" data-i18n="height">الطول (سم)</label>
+            <input id="height" type="number" inputmode="decimal" min="120" max="230" value="170" />
+          </div>
+          <div>
+            <label for="weight" data-i18n="weight">الوزن الحالي (كجم)</label>
+            <input id="weight" type="number" inputmode="decimal" min="30" max="250" value="85" />
+          </div>
+          <div>
+            <label for="goal" data-i18n="goal">الوزن المستهدف بعد 6 شهور (كجم)</label>
+            <input id="goal" type="number" inputmode="decimal" min="30" max="250" value="75" />
+          </div>
+          <div>
+            <label for="activity" data-i18n="activity">مستوى النشاط اليومي</label>
+            <select id="activity">
+              <option value="1.2" data-i18n="actVeryLow">قليل جدًا (مكتبي)</option>
+              <option value="1.375" data-i18n="actLow">خفيف (نشاط بسيط)</option>
+              <option value="1.55" selected data-i18n="actModerate">متوسط (مشي منتظم)</option>
+              <option value="1.725" data-i18n="actHigh">عالٍ (مشي كثير/عمل نشط)</option>
+              <option value="1.9" data-i18n="actVeryHigh">عالٍ جدًا (مجهود بدني مرتفع)</option>
+            </select>
+          </div>
+        </div>
+
+        <h2 style="margin-top:14px" data-i18n="measuresTitle">قياسات الجسم (اختيارية لكنها مفيدة)</h2>
+        <p class="muted small" style="margin-top:-6px" data-i18n="measuresHint">
+          أدخلها بالسنتيمتر. لنسبة الدهون التقديرية (Navy) يُفضَّل: الخصر + الرقبة (وللإناث: الخصر + الورك + الرقبة).
+        </p>
+        <div class="row">
+          <div>
+            <label for="waist" data-i18n="waist">محيط الخصر (سم)</label>
+            <input id="waist" type="number" inputmode="decimal" min="40" max="200" value="95" />
+          </div>
+          <div>
+            <label for="neck" data-i18n="neck">محيط الرقبة (سم)</label>
+            <input id="neck" type="number" inputmode="decimal" min="20" max="80" value="38" />
+          </div>
+          <div>
+            <label for="hip" data-i18n="hip">محيط الورك (سم) — للإناث</label>
+            <input id="hip" type="number" inputmode="decimal" min="50" max="220" value="105" />
+          </div>
+          <div>
+            <label for="steps" data-i18n="steps">متوسط خطواتك اليومية الآن (تقريبي)</label>
+            <input id="steps" type="number" inputmode="numeric" min="0" max="40000" value="5000" />
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="btnCalc" data-i18n="btnCalc">احسب وولّد الخطة</button>
+          <button id="btnSave" data-i18n="btnSave">حفظ الإعدادات</button>
+          <button class="danger" id="btnReset" data-i18n="btnReset">مسح كل البيانات</button>
+        </div>
+
+        <div class="note" style="margin-top:12px" data-i18n="safetyNote">
+          ⚠️ إذا كنت/كنتِ تعاني من أمراض مزمنة، حمل، اضطراب أكل، أو تتناول أدوية مؤثرة على الوزن — راجع مختصًا قبل تطبيق أي عجزٍ كبير في السعرات أو زيادة مفاجئة في النشاط.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="results">النتائج</h2>
+        <div class="kpis">
+          <div class="kpi"><div class="v" id="bmi">—</div><div class="t" data-i18n="kpiBMI">مؤشر كتلة الجسم BMI</div></div>
+          <div class="kpi"><div class="v" id="bmiCat">—</div><div class="t" data-i18n="kpiBMICat">تصنيف BMI</div></div>
+          <div class="kpi"><div class="v" id="bf">—</div><div class="t" data-i18n="kpiBF">دهون الجسم % (تقديري)</div></div>
+          <div class="kpi"><div class="v" id="bmr">—</div><div class="t" data-i18n="kpiBMR">BMR (سعر/يوم)</div></div>
+          <div class="kpi"><div class="v" id="tdee">—</div><div class="t" data-i18n="kpiTDEE">TDEE (سعر/يوم)</div></div>
+          <div class="kpi"><div class="v" id="calTarget">—</div><div class="t" data-i18n="kpiCal">سعرات مقترحة للتخسيس</div></div>
+          <div class="kpi"><div class="v" id="weeklyLoss">—</div><div class="t" data-i18n="kpiWeekly">معدل نزول/أسبوع</div></div>
+          <div class="kpi"><div class="v" id="wthr">—</div><div class="t" data-i18n="kpiWHtR">نسبة خصر/طول WHtR</div></div>
+          <div class="kpi"><div class="v" id="healthyRange">—</div><div class="t" data-i18n="kpiHealthy">وزن صحي (تقريبي)</div></div>
+        </div>
+
+        <div id="alerts" style="margin-top:12px; display:grid; gap:10px"></div>
+
+        <div class="note ok" style="margin-top:12px" data-i18n="walkTip">
+          ✅ (مشي فقط) الأفضل: ثبات يومي + زيادة تدريجية + سرعة مناسبة بحيث تستطيع التحدث بصعوبة بسيطة.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PLAN ========== -->
+  <section id="plan" class="section" aria-label="Plan">
+    <div class="card">
+      <div class="flex right no-print">
+        <span class="pill" id="planSummary">—</span>
+        <span class="pill" data-i18n="walkOnly">نوع البرنامج: مشي فقط</span>
+        <button class="primary" id="btnRegen" data-i18n="btnRegen">إعادة توليد الخطة</button>
+      </div>
+
+      <h2 data-i18n="planTitle">الخطة التفصيلية (26 أسبوعًا) — مشي فقط</h2>
+      <p class="muted small" style="margin-top:-6px" data-i18n="planHint">
+        الخطة تتدرج تدريجيًا في زمن المشي والخطوات. لو شعرت بإجهاد/آلام مفصلية: ثبّت أسبوعًا أو خفّض الزمن 20% ثم أكمل.
+      </p>
+
+      <div class="split">
+        <div>
+          <h3 style="margin:8px 0 6px; font-size:14px" data-i18n="nutritionGuide">إرشادات التغذية (مختصرة)</h3>
+          <ul class="small muted" style="margin:0; padding:0 18px 0 0">
+            <li data-i18n="nut1">قسّم وجباتك 3–4 وجبات، وابدأ كل وجبة بمصدر بروتين.</li>
+            <li data-i18n="nut2">استهدف خضارًا يوميًا + أليافًا، وقلّل السكريات المضافة.</li>
+            <li data-i18n="nut3">ماء: 2–3 لتر/يوم (يزيد مع المشي والحرارة).</li>
+            <li data-i18n="nut4">راقب متوسط الوزن أسبوعيًا (لا يوميًا فقط).</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 style="margin:8px 0 6px; font-size:14px" data-i18n="walkGuide">إرشادات المشي (مختصرة)</h3>
+          <ul class="small muted" style="margin:0; padding:0 18px 0 0">
+            <li data-i18n="walk1">ابدأ بـ 5 دقائق إحماء + 5 دقائق تهدئة.</li>
+            <li data-i18n="walk2">اختر “مشي سريع” بحيث تتحدث بصعوبة بسيطة (RPE 5–6/10).</li>
+            <li data-i18n="walk3">أضف 1–2 أيام “مشي خفيف” للتعافي بدل الاندفاع.</li>
+            <li data-i18n="walk4">إذا ظهرت آلام في الركبة/القدم: قلّل السرعة/الميلان وركّز على الحذاء المناسب.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 style="margin:14px 0 8px; font-size:14px" data-i18n="weeklyTable">الجدول الأسبوعي</h3>
+      <div style="max-height:520px; overflow:auto; border-radius:14px">
+        <table aria-label="26-week plan" id="planTable">
+          <thead>
+            <tr>
+              <th data-i18n="thWeek">الأسبوع</th>
+              <th data-i18n="thTargetW">الوزن المستهدف (كجم)</th>
+              <th data-i18n="thCal">السعرات/اليوم</th>
+              <th data-i18n="thProtein">بروتين/يوم (جم)</th>
+              <th data-i18n="thWalkPerWeek">المشي/الأسبوع</th>
+              <th data-i18n="thWalkMins">زمن المشي/اليوم</th>
+              <th data-i18n="thSteps">الخطوات/يوم</th>
+              <th data-i18n="thNote">ملاحظة الشهر</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="note" style="margin-top:12px" data-i18n="planSafety">
+        ⚠️ إذا نزل وزنك أسرع من 1% من وزنك أسبوعيًا لعدة أسابيع، أو ظهرت دوخة/إرهاق/اضطراب نوم — ارفع السعرات قليلًا أو خفّض زمن المشي وراجع مختصًا.
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== MEALS CALCULATOR ========== -->
+  <section id="meals" class="section" aria-label="Meals">
+    <div class="grid">
+      <div class="card">
+        <h2 data-i18n="mealsTitle">حاسبة سعرات الوجبات اليومية</h2>
+        <p class="muted small" style="margin-top:-6px" data-i18n="mealsHint">
+          اختر التاريخ ثم أضف وجباتك وسعراتها. سيتم حساب الإجمالي والمتبقي حسب الهدف اليومي (يُقترح تلقائيًا من خطة التخسيس).
+        </p>
+
+        <div class="row">
+          <div>
+            <label for="mealDate" data-i18n="mealDate">التاريخ</label>
+            <input id="mealDate" type="date" />
+          </div>
+          <div>
+            <label for="mealTarget" data-i18n="mealTarget">هدف السعرات اليومي</label>
+            <input id="mealTarget" type="number" inputmode="numeric" min="800" max="6000" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:8px">
+          <div>
+            <label for="mealName" data-i18n="mealName">اسم الوجبة</label>
+            <input id="mealName" type="text" data-i18n-placeholder="mealNamePh" placeholder="مثال: إفطار / Lunch" />
+          </div>
+          <div>
+            <label for="mealTime" data-i18n="mealTime">الوقت (اختياري)</label>
+            <input id="mealTime" type="time" />
+          </div>
+          <div>
+            <label for="mealCalories" data-i18n="mealCalories">السعرات (kcal)</label>
+            <input id="mealCalories" type="number" inputmode="numeric" min="0" max="4000" />
+          </div>
+          <div>
+            <label for="mealProtein" data-i18n="mealProtein">بروتين (جم) — اختياري</label>
+            <input id="mealProtein" type="number" inputmode="decimal" min="0" max="300" />
+          </div>
+          <div>
+            <label for="mealCarbs" data-i18n="mealCarbs">كربوهيدرات (جم) — اختياري</label>
+            <input id="mealCarbs" type="number" inputmode="decimal" min="0" max="500" />
+          </div>
+          <div>
+            <label for="mealFat" data-i18n="mealFat">دهون (جم) — اختياري</label>
+            <input id="mealFat" type="number" inputmode="decimal" min="0" max="300" />
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="btnAddMeal" data-i18n="btnAddMeal">إضافة الوجبة</button>
+          <button id="btnSaveMealTarget" data-i18n="btnSaveMealTarget">حفظ الهدف</button>
+          <button class="danger" id="btnClearMeals" data-i18n="btnClearMeals">مسح وجبات اليوم</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="flex" style="justify-content:space-between">
+            <span class="pill" id="mealSummary">—</span>
+            <span class="pill" id="mealRemaining">—</span>
+          </div>
+          <div class="bar" style="margin-top:10px" aria-label="progress">
+            <div id="mealBar"></div>
+          </div>
+          <div class="muted small" style="margin-top:8px" data-i18n="mealsBarHint">
+            كلما اقترب الشريط من 100% يعني أنك اقتربت من هدف السعرات لليوم.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="mealsListTitle">قائمة الوجبات</h2>
+        <div style="max-height:560px; overflow:auto; border-radius:14px">
+          <table aria-label="Meals table" id="mealsTable">
+            <thead>
+              <tr>
+                <th data-i18n="thMeal">الوجبة</th>
+                <th data-i18n="thMealTime">الوقت</th>
+                <th data-i18n="thMealCal">kcal</th>
+                <th data-i18n="thMealMacros">P/C/F</th>
+                <th data-i18n="thActions">إجراء</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="btns no-print" style="margin-top:12px">
+          <button id="btnExportMeals" data-i18n="btnExportMeals">تصدير وجبات اليوم CSV</button>
+        </div>
+
+        <div class="note ok" style="margin-top:10px" data-i18n="mealsTip">
+          ✅ نصيحة: ابدأ بتقدير السعرات فقط، ثم أضف الماكروز لاحقًا إذا رغبت.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TRACK ========== -->
+  <section id="track" class="section" aria-label="Tracking">
+    <div class="grid">
+      <div class="card">
+        <h2 data-i18n="trackTitle">سجل المتابعة الأسبوعي</h2>
+        <p class="muted small" style="margin-top:-6px" data-i18n="trackHint">
+          اكتب قياساتك مرة أسبوعيًا (مثلاً صباح الجمعة بعد الاستيقاظ). تُحفظ البيانات على جهازك (LocalStorage).
+        </p>
+
+        <div class="row">
+          <div>
+            <label for="logWeek" data-i18n="logWeek">الأسبوع (1–26)</label>
+            <input id="logWeek" type="number" inputmode="numeric" min="1" max="26" value="1" />
+          </div>
+          <div>
+            <label for="logWeight" data-i18n="logWeight">وزنك الفعلي (كجم)</label>
+            <input id="logWeight" type="number" inputmode="decimal" min="30" max="250" />
+          </div>
+          <div>
+            <label for="logWaist" data-i18n="logWaist">خصر فعلي (سم)</label>
+            <input id="logWaist" type="number" inputmode="decimal" min="40" max="200" />
+          </div>
+          <div>
+            <label for="logNotes" data-i18n="logNotes">ملاحظات (اختياري)</label>
+            <input id="logNotes" type="text" data-i18n-placeholder="logNotesPh" placeholder="نوم/التزام/ألم/إجهاد..." />
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="btnAddLog" data-i18n="btnAdd">إضافة/تحديث</button>
+          <button id="btnAutoNext" data-i18n="btnNext">تعبئة الأسبوع التالي</button>
+          <button class="danger" id="btnClearLogs" data-i18n="btnClearLogs">مسح سجل المتابعة فقط</button>
+        </div>
+
+        <h3 style="margin:14px 0 8px; font-size:14px" data-i18n="logTableTitle">السجل</h3>
+        <div style="max-height:420px; overflow:auto; border-radius:14px">
+          <table aria-label="Logs" id="logTable">
+            <thead>
+              <tr>
+                <th data-i18n="thWeek">الأسبوع</th>
+                <th data-i18n="thActualW">الوزن الفعلي</th>
+                <th data-i18n="thTargetW">الوزن المستهدف (كجم)</th>
+                <th data-i18n="thWaist">خصر</th>
+                <th data-i18n="thDiff">الفارق عن الهدف</th>
+                <th data-i18n="thNotes">ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div id="trackHintBox" class="note ok" style="margin-top:12px" data-i18n="trackBest">
+          ✅ أفضل مؤشر: متوسط وزن الأسبوع + قياس الخصر. أحيانًا الخصر ينزل حتى لو الوزن ثابت بسبب السوائل.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="chartTitle">رسم تقدّم الوزن</h2>
+        <canvas id="chart" width="900" height="300" aria-label="Weight chart" role="img"></canvas>
+        <div class="flex" style="margin-top:10px">
+          <span class="pill" id="chartLegend">—</span>
+          <span class="pill" id="latestStatus">—</span>
+        </div>
+        <div class="note" style="margin-top:12px" data-i18n="chartHint">
+          ℹ️ الرسم يوضح: الخط المستهدف مقابل نقاط الوزن الفعلي المُدخلة.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== EXPORT ========== -->
+  <section id="export" class="section" aria-label="Export">
+    <div class="card">
+      <h2 data-i18n="exportTitle">الطباعة والتصدير</h2>
+      <div class="btns no-print">
+        <button class="primary" id="btnPrint" data-i18n="btnPrint">طباعة الخطة (PDF)</button>
+        <button id="btnExportPlan" data-i18n="btnExportPlan">تصدير الخطة CSV</button>
+        <button id="btnExportLogs" data-i18n="btnExportLogs">تصدير سجل المتابعة CSV</button>
+      </div>
+
+      <h3 style="margin:14px 0 8px; font-size:14px" data-i18n="safetyShortTitle">ملاحظة سلامة (مختصرة)</h3>
+      <ul class="muted small" style="margin:0; padding:0 18px 0 0">
+        <li data-i18n="safe1">نقصان الوزن الآمن غالبًا يكون تدريجيًا (تقريبًا 0.25–1.0 كجم/أسبوع حسب الوزن والظروف).</li>
+        <li data-i18n="safe2">لا تخفّض السعرات لحدود منخفضة جدًا لفترات طويلة بدون إشراف.</li>
+        <li data-i18n="safe3">أي ألم صدري/دوخة شديدة/إغماء/ضيق نفس غير معتاد: أوقف النشاط واطلب تقييمًا طبيًا.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<!-- Mobile dock (fixed bottom) -->
+<div class="mobileDock no-print" aria-label="Mobile controls">
+  <button class="dockBtn" id="btnLangDock" type="button">
+    <span data-i18n="langLabel">اللغة</span>: <strong id="langValueDock">AR</strong>
+  </button>
+  <button class="dockBtn" id="btnThemeDock" type="button">
+    <span data-i18n="themeLabel">المظهر</span>: <strong id="themeValueDock">Auto</strong>
+  </button>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="signature" aria-label="Signature">
+      <strong data-i18n="sigTitle">البرنامج من تصميم وإعداد الدكتور محمد عبد الحميد زايد</strong>
+      <div class="meta">
+        <span class="pill"><span data-i18n="phone">هاتف</span>: <span class="ltr"><a href="tel:+966580673992">٠٥٨٠٦٧٣٩٩٢</a></span></span>
+        <span class="pill"><span data-i18n="email">إيميل</span>: <span class="ltr"><a href="mailto:mazayed@kfu.edu.sa">mazayed@kfu.edu.sa</a></span></span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =========================
+   i18n
+========================= */
+const I18N = {
+  ar: {
+    appTitle: "برنامج قياس كتلة الجسم + خطة تخسيس وتمارين (6 شهور) — مشي فقط",
+    appSubtitle: "حسابات تقديرية للتثقيف والمتابعة — ليست بديلاً عن الاستشارة الطبية.",
+    langLabel: "اللغة",
+    themeLabel: "المظهر",
+    tabCalc: "الحاسبة",
+    tabPlan: "خطة 6 شهور",
+    tabMeals: "حاسبة الوجبات",
+    tabTrack: "المتابعة",
+    tabExport: "الطباعة والتصدير",
+
+    basicData: "البيانات الأساسية",
+    sex: "الجنس",
+    male: "ذكر",
+    female: "أنثى",
+    age: "العمر (سنة)",
+    height: "الطول (سم)",
+    weight: "الوزن الحالي (كجم)",
+    goal: "الوزن المستهدف بعد 6 شهور (كجم)",
+    activity: "مستوى النشاط اليومي",
+    actVeryLow: "قليل جدًا (مكتبي)",
+    actLow: "خفيف (نشاط بسيط)",
+    actModerate: "متوسط (مشي منتظم)",
+    actHigh: "عالٍ (مشي كثير/عمل نشط)",
+    actVeryHigh: "عالٍ جدًا (مجهود بدني مرتفع)",
+
+    measuresTitle: "قياسات الجسم (اختيارية لكنها مفيدة)",
+    measuresHint: "أدخلها بالسنتيمتر. لنسبة الدهون التقديرية (Navy) يُفضَّل: الخصر + الرقبة (وللإناث: الخصر + الورك + الرقبة).",
+    waist: "محيط الخصر (سم)",
+    neck: "محيط الرقبة (سم)",
+    hip: "محيط الورك (سم) — للإناث",
+    steps: "متوسط خطواتك اليومية الآن (تقريبي)",
+
+    btnCalc: "احسب وولّد الخطة",
+    btnSave: "حفظ الإعدادات",
+    btnReset: "مسح كل البيانات",
+    safetyNote: "⚠️ إذا كنت/كنتِ تعاني من أمراض مزمنة، حمل، اضطراب أكل، أو تتناول أدوية مؤثرة على الوزن — راجع مختصًا قبل تطبيق أي عجزٍ كبير في السعرات أو زيادة مفاجئة في النشاط.",
+
+    results: "النتائج",
+    kpiBMI: "مؤشر كتلة الجسم BMI",
+    kpiBMICat: "تصنيف BMI",
+    kpiBF: "دهون الجسم % (تقديري)",
+    kpiBMR: "BMR (سعر/يوم)",
+    kpiTDEE: "TDEE (سعر/يوم)",
+    kpiCal: "سعرات مقترحة للتخسيس",
+    kpiWeekly: "معدل نزول/أسبوع",
+    kpiWHtR: "نسبة خصر/طول WHtR",
+    kpiHealthy: "وزن صحي (تقريبي)",
+    walkTip: "✅ (مشي فقط) الأفضل: ثبات يومي + زيادة تدريجية + سرعة مناسبة بحيث تستطيع التحدث بصعوبة بسيطة.",
+
+    walkOnly: "نوع البرنامج: مشي فقط",
+    btnRegen: "إعادة توليد الخطة",
+    planTitle: "الخطة التفصيلية (26 أسبوعًا) — مشي فقط",
+    planHint: "الخطة تتدرج تدريجيًا في زمن المشي والخطوات. لو شعرت بإجهاد/آلام مفصلية: ثبّت أسبوعًا أو خفّض الزمن 20% ثم أكمل.",
+    nutritionGuide: "إرشادات التغذية (مختصرة)",
+    nut1: "قسّم وجباتك 3–4 وجبات، وابدأ كل وجبة بمصدر بروتين.",
+    nut2: "استهدف خضارًا يوميًا + أليافًا، وقلّل السكريات المضافة.",
+    nut3: "ماء: 2–3 لتر/يوم (يزيد مع المشي والحرارة).",
+    nut4: "راقب متوسط الوزن أسبوعيًا (لا يوميًا فقط).",
+    walkGuide: "إرشادات المشي (مختصرة)",
+    walk1: "ابدأ بـ 5 دقائق إحماء + 5 دقائق تهدئة.",
+    walk2: "اختر “مشي سريع” بحيث تتحدث بصعوبة بسيطة (RPE 5–6/10).",
+    walk3: "أضف 1–2 أيام “مشي خفيف” للتعافي بدل الاندفاع.",
+    walk4: "إذا ظهرت آلام في الركبة/القدم: قلّل السرعة/الميلان وركّز على الحذاء المناسب.",
+    weeklyTable: "الجدول الأسبوعي",
+    thWeek: "الأسبوع",
+    thTargetW: "الوزن المستهدف (كجم)",
+    thCal: "السعرات/اليوم",
+    thProtein: "بروتين/يوم (جم)",
+    thWalkPerWeek: "المشي/الأسبوع",
+    thWalkMins: "زمن المشي/اليوم",
+    thSteps: "الخطوات/يوم",
+    thNote: "ملاحظة الشهر",
+    planSafety: "⚠️ إذا نزل وزنك أسرع من 1% من وزنك أسبوعيًا لعدة أسابيع، أو ظهرت دوخة/إرهاق/اضطراب نوم — ارفع السعرات قليلًا أو خفّض زمن المشي وراجع مختصًا.",
+
+    /* Meals */
+    mealsTitle: "حاسبة سعرات الوجبات اليومية",
+    mealsHint: "اختر التاريخ ثم أضف وجباتك وسعراتها. سيتم حساب الإجمالي والمتبقي حسب الهدف اليومي (يُقترح تلقائيًا من خطة التخسيس).",
+    mealDate: "التاريخ",
+    mealTarget: "هدف السعرات اليومي",
+    mealName: "اسم الوجبة",
+    mealNamePh: "مثال: إفطار / Lunch",
+    mealTime: "الوقت (اختياري)",
+    mealCalories: "السعرات (kcal)",
+    mealProtein: "بروتين (جم) — اختياري",
+    mealCarbs: "كربوهيدرات (جم) — اختياري",
+    mealFat: "دهون (جم) — اختياري",
+    btnAddMeal: "إضافة الوجبة",
+    btnSaveMealTarget: "حفظ الهدف",
+    btnClearMeals: "مسح وجبات اليوم",
+    mealsBarHint: "كلما اقترب الشريط من 100% يعني أنك اقتربت من هدف السعرات لليوم.",
+    mealsListTitle: "قائمة الوجبات",
+    thMeal: "الوجبة",
+    thMealTime: "الوقت",
+    thMealCal: "kcal",
+    thMealMacros: "P/C/F",
+    thActions: "إجراء",
+    btnExportMeals: "تصدير وجبات اليوم CSV",
+    mealsTip: "✅ نصيحة: ابدأ بتقدير السعرات فقط، ثم أضف الماكروز لاحقًا إذا رغبت.",
+    mealSaved: "تم حفظ هدف السعرات ✅",
+    mealAdded: "تمت إضافة الوجبة ✅",
+    mealNeedCal: "أدخل السعرات (kcal) للوجبة.",
+    mealNeedName: "اكتب اسم الوجبة (ولو كلمة واحدة).",
+    mealCleared: "تم مسح وجبات هذا اليوم ✅",
+    confirmMealClear: "سيتم مسح وجبات هذا اليوم فقط. هل تريد المتابعة؟",
+    remaining: "المتبقي",
+    total: "الإجمالي",
+    ofTarget: "من الهدف",
+    del: "حذف",
+
+    trackTitle: "سجل المتابعة الأسبوعي",
+    trackHint: "اكتب قياساتك مرة أسبوعيًا (مثلاً صباح الجمعة بعد الاستيقاظ). تُحفظ البيانات على جهازك (LocalStorage).",
+    logWeek: "الأسبوع (1–26)",
+    logWeight: "وزنك الفعلي (كجم)",
+    logWaist: "خصر فعلي (سم)",
+    logNotes: "ملاحظات (اختياري)",
+    logNotesPh: "نوم/التزام/ألم/إجهاد...",
+    btnAdd: "إضافة/تحديث",
+    btnNext: "تعبئة الأسبوع التالي",
+    btnClearLogs: "مسح سجل المتابعة فقط",
+    logTableTitle: "السجل",
+    thActualW: "الوزن الفعلي",
+    thWaist: "خصر",
+    thDiff: "الفارق عن الهدف",
+    thNotes: "ملاحظات",
+    trackBest: "✅ أفضل مؤشر: متوسط وزن الأسبوع + قياس الخصر. أحيانًا الخصر ينزل حتى لو الوزن ثابت بسبب السوائل.",
+
+    chartTitle: "رسم تقدّم الوزن",
+    chartHint: "ℹ️ الرسم يوضح: الخط المستهدف مقابل نقاط الوزن الفعلي المُدخلة.",
+    legend: "الأزرق: الوزن المستهدف — الأخضر: الوزن الفعلي",
+    noPlan: "ولّد الخطة أولًا من تبويب الحاسبة.",
+    addWeekly: "أضف قياسًا أسبوعيًا ليظهر التقييم.",
+    ahead: "متقدّم عن الهدف بـ {x} كجم (أسبوع {w})",
+    behind: "متأخر عن الهدف بـ {x} كجم (أسبوع {w})",
+
+    exportTitle: "الطباعة والتصدير",
+    btnPrint: "طباعة الخطة (PDF)",
+    btnExportPlan: "تصدير الخطة CSV",
+    btnExportLogs: "تصدير سجل المتابعة CSV",
+    safetyShortTitle: "ملاحظة سلامة (مختصرة)",
+    safe1: "نقصان الوزن الآمن غالبًا يكون تدريجيًا (تقريبًا 0.25–1.0 كجم/أسبوع حسب الوزن والظروف).",
+    safe2: "لا تخفّض السعرات لحدود منخفضة جدًا لفترات طويلة بدون إشراف.",
+    safe3: "أي ألم صدري/دوخة شديدة/إغماء/ضيق نفس غير معتاد: أوقف النشاط واطلب تقييمًا طبيًا.",
+
+    sigTitle: "البرنامج من تصميم وإعداد الدكتور محمد عبد الحميد زايد",
+    phone: "هاتف",
+    email: "إيميل",
+
+    alertGoalHigher: "أنت أدخلت وزنًا مستهدفًا أعلى من الحالي — سيتم توليد خطة تثبيت/تحسين لياقة (مشي فقط).",
+    alertGoalClose: "الفرق بين الوزن الحالي والمستهدف صغير جدًا — الخطة ستكون أقرب للتثبيت وتحسين العادات (مشي فقط).",
+    alertGoalNormal: "هدفك: نزول {x} كجم خلال 6 شهور (مشي فقط) — راقب الالتزام والتعب.",
+    alertWHtRHigh2: "نسبة الخصر/الطول مرتفعة جدًا — ركّز على المشي اليومي + ضبط السعرات.",
+    alertWHtRHigh: "نسبة الخصر/الطول مرتفعة — غالبًا يتحسن الخصر أولًا مع الاستمرارية.",
+    alertBFMissing: "لم يتم حساب نسبة الدهون: أدخل الخصر والرقبة (وللإناث أيضًا الورك).",
+
+    bmiUnder: "نحافة",
+    bmiNormal: "طبيعي",
+    bmiOver: "زيادة وزن",
+    bmiOb1: "سمنة (درجة 1)",
+    bmiOb2: "سمنة (درجة 2)",
+    bmiOb3: "سمنة (درجة 3)",
+    whtrGood: "جيدة",
+    whtrHigh: "مرتفعة",
+    whtrHigh2: "مرتفعة جدًا",
+
+    m1: "شهر 1: تأسيس عادة المشي + ثبات",
+    m2: "شهر 2: زيادة الزمن والوتيرة",
+    m3: "شهر 3: إدخال فترات مشي سريع",
+    m4: "شهر 4: رفع الخطوات تدريجيًا",
+    m5: "شهر 5: صقل الالتزام + تعافٍ",
+    m6: "شهر 6: تثبيت النتائج والاستمرار",
+
+    wp1: "مشي مريح + زيادة تدريجية",
+    wp2: "مشي سريع خفيف 5–10 دقائق ضمن الجلسة",
+    wp3: "2 أيام: 6×(1د سريع/1د عادي)",
+    wp4: "3 أيام: فترات سريعة قصيرة",
+    wp5: "أضف ميلان بسيط/سرعة أعلى حسب القدرة",
+    wp6: "1 يوم طويل (60د كل أسبوعين) إذا مناسب",
+
+    saved: "تم حفظ الإعدادات على جهازك ✅",
+    updated: "تم تحديث السجل ✅",
+    needPlan: "ولّد الخطة أولًا.",
+    needPlanCalc: "ولّد الخطة أولًا من تبويب الحاسبة.",
+    confirmAll: "سيتم مسح جميع البيانات (الخطة + السجل + الوجبات). هل تريد المتابعة؟",
+    confirmLogs: "سيتم مسح سجل المتابعة فقط. هل تريد المتابعة؟",
+    weekRange: "رقم الأسبوع يجب أن يكون بين 1 و 26.",
+    enterWeight: "أدخل الوزن الفعلي (كجم).",
+
+    themeAuto: "تلقائي",
+    themeLight: "نهاري",
+    themeDark: "ليلي"
+  },
+
+  en: {
+    appTitle: "Body Metrics + 6‑Month Weight‑Loss Plan — Walking Only",
+    appSubtitle: "Educational estimates for tracking — not a substitute for medical advice.",
+    langLabel: "Language",
+    themeLabel: "Theme",
+    tabCalc: "Calculator",
+    tabPlan: "6‑Month Plan",
+    tabMeals: "Meals",
+    tabTrack: "Tracking",
+    tabExport: "Print & Export",
+
+    basicData: "Basic data",
+    sex: "Sex",
+    male: "Male",
+    female: "Female",
+    age: "Age (years)",
+    height: "Height (cm)",
+    weight: "Current weight (kg)",
+    goal: "Goal weight after 6 months (kg)",
+    activity: "Daily activity level",
+    actVeryLow: "Very low (desk job)",
+    actLow: "Low (light activity)",
+    actModerate: "Moderate (regular walking)",
+    actHigh: "High (a lot of walking/active job)",
+    actVeryHigh: "Very high (hard physical work)",
+
+    measuresTitle: "Body measurements (optional but useful)",
+    measuresHint: "Enter in centimeters. For Navy body‑fat estimate: waist + neck (women: waist + hip + neck).",
+    waist: "Waist (cm)",
+    neck: "Neck (cm)",
+    hip: "Hip (cm) — women",
+    steps: "Current average daily steps (approx.)",
+
+    btnCalc: "Calculate & generate plan",
+    btnSave: "Save settings",
+    btnReset: "Reset all data",
+    safetyNote: "⚠️ If you have chronic conditions, pregnancy, eating disorders, or weight‑affecting medication — consult a professional before large calorie deficits or sudden activity increases.",
+
+    results: "Results",
+    kpiBMI: "BMI",
+    kpiBMICat: "BMI category",
+    kpiBF: "Body fat % (estimate)",
+    kpiBMR: "BMR (kcal/day)",
+    kpiTDEE: "TDEE (kcal/day)",
+    kpiCal: "Suggested cutting calories",
+    kpiWeekly: "Estimated loss / week",
+    kpiWHtR: "Waist‑to‑height ratio (WHtR)",
+    kpiHealthy: "Healthy weight range (approx.)",
+    walkTip: "✅ (Walking only) Best: daily consistency + gradual progression + brisk pace where talking is slightly difficult.",
+
+    walkOnly: "Program type: Walking only",
+    btnRegen: "Regenerate plan",
+    planTitle: "Detailed plan (26 weeks) — Walking only",
+    planHint: "Progress gradually in walking time and steps. If you feel joint pain/fatigue: hold a week or reduce time by 20%, then continue.",
+    nutritionGuide: "Nutrition guide (brief)",
+    nut1: "Split into 3–4 meals; start each meal with a protein source.",
+    nut2: "Aim for daily vegetables + fiber; reduce added sugars.",
+    nut3: "Water: 2–3 L/day (more with heat/walking).",
+    nut4: "Track weekly average weight (not daily only).",
+    walkGuide: "Walking guide (brief)",
+    walk1: "Start with 5‑min warm‑up + 5‑min cool‑down.",
+    walk2: "Choose a brisk pace where speaking is slightly difficult (RPE 5–6/10).",
+    walk3: "Add 1–2 easy walk days for recovery.",
+    walk4: "If knee/foot pain appears: reduce speed/incline and use proper footwear.",
+    weeklyTable: "Weekly table",
+    thWeek: "Week",
+    thTargetW: "Target weight (kg)",
+    thCal: "Calories/day",
+    thProtein: "Protein/day (g)",
+    thWalkPerWeek: "Walk/week",
+    thWalkMins: "Minutes/day",
+    thSteps: "Steps/day",
+    thNote: "Monthly note",
+    planSafety: "⚠️ If you lose faster than ~1% of body weight/week for several weeks, or you feel dizziness/extreme fatigue/sleep issues — slightly increase calories or reduce walking time and consult a professional.",
+
+    /* Meals */
+    mealsTitle: "Daily meal calorie calculator",
+    mealsHint: "Pick a date and add your meals. The app sums calories and shows remaining vs daily target (auto-suggested from your plan).",
+    mealDate: "Date",
+    mealTarget: "Daily calorie target",
+    mealName: "Meal name",
+    mealNamePh: "e.g., Breakfast / Lunch",
+    mealTime: "Time (optional)",
+    mealCalories: "Calories (kcal)",
+    mealProtein: "Protein (g) — optional",
+    mealCarbs: "Carbs (g) — optional",
+    mealFat: "Fat (g) — optional",
+    btnAddMeal: "Add meal",
+    btnSaveMealTarget: "Save target",
+    btnClearMeals: "Clear today's meals",
+    mealsBarHint: "When the bar approaches 100%, you are close to your daily calorie target.",
+    mealsListTitle: "Meals list",
+    thMeal: "Meal",
+    thMealTime: "Time",
+    thMealCal: "kcal",
+    thMealMacros: "P/C/F",
+    thActions: "Action",
+    btnExportMeals: "Export today's meals CSV",
+    mealsTip: "✅ Tip: start by tracking calories only, then add macros later if you want.",
+    mealSaved: "Daily target saved ✅",
+    mealAdded: "Meal added ✅",
+    mealNeedCal: "Enter meal calories (kcal).",
+    mealNeedName: "Enter a meal name (even 1 word).",
+    mealCleared: "Today's meals cleared ✅",
+    confirmMealClear: "This will clear meals for this date only. Continue?",
+    remaining: "Remaining",
+    total: "Total",
+    ofTarget: "of target",
+    del: "Delete",
+
+    trackTitle: "Weekly tracking log",
+    trackHint: "Log once per week (e.g., Friday morning after waking). Data is saved on your device (LocalStorage).",
+    logWeek: "Week (1–26)",
+    logWeight: "Actual weight (kg)",
+    logWaist: "Waist (cm)",
+    logNotes: "Notes (optional)",
+    logNotesPh: "Sleep / adherence / pain / fatigue...",
+    btnAdd: "Add / update",
+    btnNext: "Next week",
+    btnClearLogs: "Clear logs only",
+    logTableTitle: "Logs",
+    thActualW: "Actual weight",
+    thWaist: "Waist",
+    thDiff: "Diff vs target",
+    thNotes: "Notes",
+    trackBest: "✅ Best indicators: weekly average weight + waist. Waist can drop even if scale is stable (water changes).",
+
+    chartTitle: "Weight progress chart",
+    chartHint: "ℹ️ Blue = target line, green = logged actual weights.",
+    legend: "Blue: target — Green: actual",
+    noPlan: "Generate the plan first from the Calculator tab.",
+    addWeekly: "Add a weekly log to see status.",
+    ahead: "Ahead of target by {x} kg (Week {w})",
+    behind: "Behind target by {x} kg (Week {w})",
+
+    exportTitle: "Print & export",
+    btnPrint: "Print plan (PDF)",
+    btnExportPlan: "Export plan CSV",
+    btnExportLogs: "Export logs CSV",
+    safetyShortTitle: "Safety note (brief)",
+    safe1: "Safe loss is usually gradual (~0.25–1.0 kg/week depending on context).",
+    safe2: "Avoid very low calories for long periods without supervision.",
+    safe3: "Chest pain, severe dizziness, fainting, unusual shortness of breath: stop and seek medical evaluation.",
+
+    sigTitle: "Designed & prepared by Dr. Mohamed Abdelhamid Zayed",
+    phone: "Phone",
+    email: "Email",
+
+    alertGoalHigher: "Your goal weight is higher than your current weight — a maintenance/fitness plan will be generated (walking only).",
+    alertGoalClose: "Your goal is very close to current weight — the plan will focus on maintenance & habits (walking only).",
+    alertGoalNormal: "Goal: lose {x} kg in 6 months (walking only) — monitor adherence and fatigue.",
+    alertWHtRHigh2: "Waist‑to‑height ratio is very high — focus on daily walking + calorie control.",
+    alertWHtRHigh: "Waist‑to‑height ratio is elevated — waist often improves first with consistency.",
+    alertBFMissing: "Body‑fat estimate not computed: enter waist & neck (women: also hip).",
+
+    bmiUnder: "Underweight",
+    bmiNormal: "Normal",
+    bmiOver: "Overweight",
+    bmiOb1: "Obesity (Class I)",
+    bmiOb2: "Obesity (Class II)",
+    bmiOb3: "Obesity (Class III)",
+    whtrGood: "Good",
+    whtrHigh: "High",
+    whtrHigh2: "Very high",
+
+    m1: "Month 1: build the habit + consistency",
+    m2: "Month 2: increase time & pace",
+    m3: "Month 3: add brisk intervals",
+    m4: "Month 4: raise steps gradually",
+    m5: "Month 5: refine adherence + recovery",
+    m6: "Month 6: stabilize & continue",
+
+    wp1: "Comfortable walking + gradual build",
+    wp2: "Light brisk walking 5–10 min within the session",
+    wp3: "2 days: 6×(1 min brisk / 1 min easy)",
+    wp4: "3 days: short brisk intervals",
+    wp5: "Add slight incline/higher pace as tolerated",
+    wp6: "1 long day (60 min every two weeks) if suitable",
+
+    saved: "Saved on your device ✅",
+    updated: "Log updated ✅",
+    needPlan: "Generate the plan first.",
+    needPlanCalc: "Generate the plan first from the Calculator tab.",
+    confirmAll: "This will clear ALL data (plan + logs + meals). Continue?",
+    confirmLogs: "This will clear logs only. Continue?",
+    weekRange: "Week must be between 1 and 26.",
+    enterWeight: "Enter actual weight (kg).",
+
+    themeAuto: "Auto",
+    themeLight: "Day",
+    themeDark: "Night"
+  }
+};
+
+function t(key, vars){
+  const lang = state.settings.lang;
+  let s = (I18N[lang] && I18N[lang][key]) ? I18N[lang][key] : key;
+  if(vars){
+    for(const k in vars){
+      s = s.replaceAll(`{${k}}`, String(vars[k]));
+    }
+  }
+  return s;
+}
+
+/* =========================
+   Utilities
+========================= */
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const round = (x, d=0) => {
+  const p = Math.pow(10, d);
+  return Math.round((x + Number.EPSILON) * p) / p;
+};
+function fmtNum(x){
+  if(!Number.isFinite(x)) return "—";
+  const loc = state.settings.lang === "ar" ? "ar-SA" : "en-US";
+  return x.toLocaleString(loc);
+}
+function fmtInt(x){ return Number.isFinite(x) ? fmtNum(Math.round(x)) : "—"; }
+
+function toInches(cm){ return cm / 2.54; }
+function log10(x){ return Math.log(x) / Math.log(10); }
+
+function bmiCategory(bmi){
+  if (!Number.isFinite(bmi)) return '—';
+  if (bmi < 18.5) return t("bmiUnder");
+  if (bmi < 25) return t("bmiNormal");
+  if (bmi < 30) return t("bmiOver");
+  if (bmi < 35) return t("bmiOb1");
+  if (bmi < 40) return t("bmiOb2");
+  return t("bmiOb3");
+}
+function whtrCategory(whtr){
+  if (!Number.isFinite(whtr)) return '—';
+  if (whtr < 0.5) return t("whtrGood");
+  if (whtr < 0.6) return t("whtrHigh");
+  return t("whtrHigh2");
+}
+
+function navyBodyFatPct({sex, heightCm, waistCm, neckCm, hipCm}){
+  if (![heightCm, waistCm, neckCm].every(v => Number.isFinite(v) && v > 0)) return NaN;
+  const h = toInches(heightCm);
+  const w = toInches(waistCm);
+  const n = toInches(neckCm);
+  if (sex === 'male'){
+    const x = (w - n);
+    if (x <= 0) return NaN;
+    return 495 / (1.0324 - 0.19077 * log10(x) + 0.15456 * log10(h)) - 450;
+  } else {
+    if (!(Number.isFinite(hipCm) && hipCm > 0)) return NaN;
+    const hip = toInches(hipCm);
+    const x = (w + hip - n);
+    if (x <= 0) return NaN;
+    return 495 / (1.29579 - 0.35004 * log10(x) + 0.22100 * log10(h)) - 450;
+  }
+}
+
+function mifflinBMR({sex, weightKg, heightCm, ageY}){
+  if (![weightKg, heightCm, ageY].every(v => Number.isFinite(v) && v > 0)) return NaN;
+  const base = 10*weightKg + 6.25*heightCm - 5*ageY;
+  return sex === 'male' ? (base + 5) : (base - 161);
+}
+
+function healthyWeightRange(heightCm){
+  const hM = heightCm/100;
+  if (!(Number.isFinite(hM) && hM > 0)) return null;
+  const minW = 18.5 * hM * hM;
+  const maxW = 24.9 * hM * hM;
+  return {minW, maxW};
+}
+
+function proteinTargetGrams(weightKg, goalKg){
+  const basis = Number.isFinite(goalKg) && goalKg > 0 ? goalKg : weightKg;
+  const g = basis * 1.8;
+  return clamp(g, 90, 220);
+}
+
+/* =========================
+   State
+========================= */
+const STORE_KEY = "wl_6m_walkonly_bilingual_theme_meals_v2";
+const defaultState = {
+  settings: { lang: "ar", theme: "auto" }, // theme: auto|light|dark
+  inputs: { sex: "male", age: 30, height: 170, weight: 85, goal: 75, activity: 1.55, waist: 95, neck: 38, hip: 105, steps: 5000 },
+  plan: null,
+  logs: {},
+  mealsByDate: {},     // { "YYYY-MM-DD": [ {name,time,cal,protein,carbs,fat,id} ] }
+  mealTargets: {}      // { "YYYY-MM-DD": 1800 }
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return structuredClone(defaultState);
+    const s = JSON.parse(raw);
+    return {
+      ...structuredClone(defaultState),
+      ...s,
+      settings: {...structuredClone(defaultState.settings), ...(s.settings||{})},
+      inputs: {...structuredClone(defaultState.inputs), ...(s.inputs||{})},
+      logs: s.logs || {},
+      mealsByDate: s.mealsByDate || {},
+      mealTargets: s.mealTargets || {}
+    };
+  }catch(e){
+    return structuredClone(defaultState);
+  }
+}
+function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+let state = loadState();
+
+/* =========================
+   Apply language & theme
+========================= */
+function applyTheme(){
+  const mode = state.settings.theme; // auto|light|dark
+  const html = document.documentElement;
+  if(mode === "auto"){
+    html.removeAttribute("data-theme");
+  } else {
+    html.setAttribute("data-theme", mode);
+  }
+  const label = mode === "auto" ? t("themeAuto") : (mode === "light" ? t("themeLight") : t("themeDark"));
+  $("themeValue").textContent = label;
+  $("themeValueDock").textContent = label;
+}
+
+function applyLanguage(){
+  const lang = state.settings.lang;
+  const html = document.documentElement;
+  html.lang = lang;
+  html.dir = (lang === "ar") ? "rtl" : "ltr";
+  $("langValue").textContent = (lang === "ar") ? "AR" : "EN";
+  $("langValueDock").textContent = (lang === "ar") ? "AR" : "EN";
+
+  // translate text nodes
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.getAttribute("data-i18n");
+    if(key) el.textContent = t(key);
+  });
+  // placeholders
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-placeholder");
+    if(key) el.setAttribute("placeholder", t(key));
+  });
+
+  // Re-render dynamic parts
+  renderResults(state.inputs);
+  renderPlan();
+  renderLogs();
+  drawChart();
+  initMealsUI();  // ensures labels and summaries are updated
+}
+
+function cycleLang(){
+  state.settings.lang = (state.settings.lang === "ar") ? "en" : "ar";
+  saveState();
+  applyLanguage();
+}
+function cycleTheme(){
+  const order = ["auto", "light", "dark"];
+  const idx = order.indexOf(state.settings.theme);
+  state.settings.theme = order[(idx + 1) % order.length];
+  saveState();
+  applyTheme();
+}
+
+/* =========================
+   Bind Inputs
+========================= */
+function bindInputsFromState(){
+  $("sex").value = state.inputs.sex;
+  $("age").value = state.inputs.age;
+  $("height").value = state.inputs.height;
+  $("weight").value = state.inputs.weight;
+  $("goal").value = state.inputs.goal;
+  $("activity").value = String(state.inputs.activity);
+  $("waist").value = Number.isFinite(state.inputs.waist) ? state.inputs.waist : "";
+  $("neck").value = Number.isFinite(state.inputs.neck) ? state.inputs.neck : "";
+  $("hip").value = Number.isFinite(state.inputs.hip) ? state.inputs.hip : "";
+  $("steps").value = Number.isFinite(state.inputs.steps) ? state.inputs.steps : "";
+}
+function readInputs(){
+  state.inputs = {
+    sex: $("sex").value,
+    age: parseFloat($("age").value),
+    height: parseFloat($("height").value),
+    weight: parseFloat($("weight").value),
+    goal: parseFloat($("goal").value),
+    activity: parseFloat($("activity").value),
+    waist: parseFloat($("waist").value),
+    neck: parseFloat($("neck").value),
+    hip: parseFloat($("hip").value),
+    steps: parseFloat($("steps").value)
+  };
+  return state.inputs;
+}
+
+/* =========================
+   Plan Generator (26 weeks) - WALK ONLY
+========================= */
+function monthNote(wk){
+  const m = Math.ceil(wk/4.33);
+  const map = {1:t("m1"),2:t("m2"),3:t("m3"),4:t("m4"),5:t("m5"),6:t("m6")};
+  return map[m] || "—";
+}
+function walkPrescription(wk){
+  let days, minutes, noteKey;
+  if (wk <= 4){ days=4; minutes=25; noteKey="wp1"; }
+  else if (wk <= 8){ days=5; minutes=30; noteKey="wp2"; }
+  else if (wk <= 12){ days=5; minutes=35; noteKey="wp3"; }
+  else if (wk <= 16){ days=6; minutes=40; noteKey="wp4"; }
+  else if (wk <= 20){ days=6; minutes=45; noteKey="wp5"; }
+  else { days=6; minutes=50; noteKey="wp6"; }
+  return {days, minutes, note: t(noteKey)};
+}
+function sumLossUpToWeek(totalWeeks, baseWeeklyLoss, upto, delta){
+  let s = 0;
+  for(let w=1; w<=upto; w++){
+    const taper = 1 - 0.15*(w-1)/(totalWeeks-1);
+    s += baseWeeklyLoss * taper;
+  }
+  return Math.min(s, delta);
+}
+function generatePlan(inputs){
+  const weeks = 26;
+  const w0 = inputs.weight;
+  const goal = inputs.goal;
+  const delta = w0 - goal;
+
+  const bmr = mifflinBMR({sex:inputs.sex, weightKg:w0, heightCm:inputs.height, ageY:inputs.age});
+  const tdee = bmr * inputs.activity;
+
+  let mode = "loss";
+  if (!Number.isFinite(delta) || delta <= 0.2) mode = "maintain";
+
+  const maxByPercent = w0 * 0.01;
+  let weeklyLoss = mode === "loss" ? (delta / weeks) : 0;
+  weeklyLoss = clamp(weeklyLoss, 0.25, Math.min(1.0, maxByPercent));
+
+  const kcalPerKg = 7700;
+  let dailyDeficit = mode === "loss" ? (weeklyLoss * kcalPerKg / 7) : 0;
+  let calTarget = tdee - dailyDeficit;
+
+  const minCal = inputs.sex === "male" ? 1500 : 1200;
+  let adjusted = false;
+  if (mode === "loss" && calTarget < minCal){
+    calTarget = minCal;
+    dailyDeficit = Math.max(0, tdee - calTarget);
+    weeklyLoss = (dailyDeficit * 7) / kcalPerKg;
+    adjusted = true;
+  }
+
+  const baseSteps = Number.isFinite(inputs.steps) ? inputs.steps : 5000;
+  const stepsStart = clamp(baseSteps, 2000, 12000);
+  const stepsEnd   = clamp(Math.round(stepsStart + 4000), 6500, 15000);
+
+  const proteinG = Math.round(proteinTargetGrams(w0, inputs.goal));
+
+  const rows = [];
+  for(let wk=1; wk<=weeks; wk++){
+    const targetWeight = mode==="loss"
+      ? (w0 - sumLossUpToWeek(weeks, weeklyLoss, wk, delta))
+      : w0;
+
+    const stepsDay = Math.round(stepsStart + (stepsEnd-stepsStart) * (wk-1)/(weeks-1));
+    const wp = walkPrescription(wk);
+
+    rows.push({
+      week: wk,
+      targetWeight: round(targetWeight, 1),
+      calories: Math.round(calTarget),
+      protein: proteinG,
+      walkDays: wp.days,
+      walkMins: wp.minutes,
+      stepsDay,
+      note: `${monthNote(wk)} — ${wp.note}`
+    });
+  }
+
+  return {
+    mode,
+    bmr: Math.round(bmr),
+    tdee: Math.round(tdee),
+    calories: Math.round(calTarget),
+    weeklyLoss: round(weeklyLoss, 2),
+    adjustedMinCalories: adjusted,
+    proteinG,
+    rows
+  };
+}
+
+/* =========================
+   Renderers
+========================= */
+function makeAlert(text, type="note"){
+  const div = document.createElement("div");
+  div.className = "note" + (type==="ok" ? " ok" : (type==="bad" ? " bad" : ""));
+  div.textContent = text;
+  return div;
+}
+
+function renderResults(inputs){
+  const hM = inputs.height/100;
+  const bmi = inputs.weight / (hM*hM);
+  const bmr = mifflinBMR({sex:inputs.sex, weightKg:inputs.weight, heightCm:inputs.height, ageY:inputs.age});
+  const tdee = bmr * inputs.activity;
+
+  const bf = navyBodyFatPct({
+    sex:inputs.sex, heightCm:inputs.height,
+    waistCm:inputs.waist, neckCm:inputs.neck, hipCm:inputs.hip
+  });
+
+  const whtr = (Number.isFinite(inputs.waist) && Number.isFinite(inputs.height) && inputs.height>0)
+    ? (inputs.waist/inputs.height) : NaN;
+
+  const range = healthyWeightRange(inputs.height);
+
+  $("bmi").textContent = Number.isFinite(bmi) ? String(round(bmi,2)) : '—';
+  $("bmiCat").textContent = bmiCategory(bmi);
+  $("bf").textContent = Number.isFinite(bf) ? `${round(bf,1)}%` : '—';
+  $("bmr").textContent = Number.isFinite(bmr) ? fmtInt(bmr) : '—';
+  $("tdee").textContent = Number.isFinite(tdee) ? fmtInt(tdee) : '—';
+  $("wthr").textContent = Number.isFinite(whtr) ? `${round(whtr,2)} (${whtrCategory(whtr)})` : '—';
+  $("healthyRange").textContent = range ? `${round(range.minW,1)} – ${round(range.maxW,1)} kg` : '—';
+
+  if(state.plan){
+    $("calTarget").textContent = fmtInt(state.plan.calories);
+    $("weeklyLoss").textContent = state.plan.mode==="loss" ? `${state.plan.weeklyLoss} kg` : (state.settings.lang==="ar" ? "تثبيت" : "Maintain");
+  } else {
+    $("calTarget").textContent = '—';
+    $("weeklyLoss").textContent = '—';
+  }
+
+  const alerts = $("alerts");
+  alerts.innerHTML = "";
+  const delta = inputs.weight - inputs.goal;
+
+  if (!Number.isFinite(delta) || delta < -0.2){
+    alerts.appendChild(makeAlert(t("alertGoalHigher"), "ok"));
+  } else if (delta <= 0.2){
+    alerts.appendChild(makeAlert(t("alertGoalClose"), "ok"));
+  } else {
+    alerts.appendChild(makeAlert(t("alertGoalNormal", {x: round(delta,1)}), "ok"));
+  }
+
+  if (Number.isFinite(whtr) && whtr >= 0.6){
+    alerts.appendChild(makeAlert(t("alertWHtRHigh2"), "bad"));
+  } else if (Number.isFinite(whtr) && whtr >= 0.5){
+    alerts.appendChild(makeAlert(t("alertWHtRHigh"), "note"));
+  }
+
+  if (!Number.isFinite(bf)){
+    alerts.appendChild(makeAlert(t("alertBFMissing"), "note"));
+  }
+}
+
+function updatePlanSummaryPill(){
+  if(!state.plan){ $("planSummary").textContent = "—"; return; }
+  const p = state.plan;
+  const summary = p.mode==="loss"
+    ? (state.settings.lang==="ar"
+      ? `سعرات: ${fmtInt(p.calories)}/يوم — بروتين: ~${fmtInt(p.proteinG)} جم — نزول: ${p.weeklyLoss} كجم/أسبوع`
+      : `Calories: ${fmtInt(p.calories)}/day — Protein: ~${fmtInt(p.proteinG)} g — Loss: ${p.weeklyLoss} kg/week`)
+    : (state.settings.lang==="ar"
+      ? `خطة تثبيت: ${fmtInt(p.calories)}/يوم — بروتين: ~${fmtInt(p.proteinG)} جم`
+      : `Maintenance: ${fmtInt(p.calories)}/day — Protein: ~${fmtInt(p.proteinG)} g`);
+  $("planSummary").textContent = summary;
+}
+
+function renderPlan(){
+  const plan = state.plan;
+  const tbody = $("planTable").querySelector("tbody");
+  tbody.innerHTML = "";
+  if(!plan){ updatePlanSummaryPill(); return; }
+  updatePlanSummaryPill();
+
+  plan.rows.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><span class="pill">#${r.week}</span></td>
+      <td><span class="v" style="font-family:var(--mono)">${r.targetWeight}</span></td>
+      <td style="font-family:var(--mono)">${fmtInt(r.calories)}</td>
+      <td style="font-family:var(--mono)">${fmtInt(r.protein)}</td>
+      <td>${r.walkDays} ${state.settings.lang==="ar" ? "أيام" : "days"}</td>
+      <td>${r.walkMins} ${state.settings.lang==="ar" ? "دقيقة" : "min"}</td>
+      <td style="font-family:var(--mono)">${fmtInt(r.stepsDay)}</td>
+      <td class="muted small">${escapeHtml(r.note)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderLogs(){
+  const tbody = $("logTable").querySelector("tbody");
+  tbody.innerHTML = "";
+  const plan = state.plan;
+
+  for(let wk=1; wk<=26; wk++){
+    const log = state.logs[String(wk)];
+    const target = plan?.rows?.[wk-1]?.targetWeight;
+    const w = log?.weight;
+    const diff = (Number.isFinite(w) && Number.isFinite(target)) ? round(w - target, 1) : NaN;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><span class="pill">#${wk}</span></td>
+      <td style="font-family:var(--mono)">${Number.isFinite(w) ? w : '—'}</td>
+      <td style="font-family:var(--mono)">${Number.isFinite(target) ? target : '—'}</td>
+      <td style="font-family:var(--mono)">${Number.isFinite(log?.waist) ? log.waist : '—'}</td>
+      <td>${Number.isFinite(diff) ? (diff>0 ? `+${diff}` : `${diff}`) : '—'}</td>
+      <td class="muted small">${log?.notes ? escapeHtml(log.notes) : '—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function escapeHtml(s){
+  return String(s)
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+
+/* =========================
+   Meals calculator
+========================= */
+function todayISO(){
+  const d = new Date();
+  const z = (n)=> String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`;
+}
+function getMealDate(){
+  return $("mealDate").value || todayISO();
+}
+function suggestedMealTarget(){
+  if(state.plan && Number.isFinite(state.plan.calories)) return state.plan.calories;
+  return state.settings.lang==="ar" ? 2000 : 2000;
+}
+function ensureMealTarget(date){
+  if(!Number.isFinite(state.mealTargets[date])){
+    state.mealTargets[date] = suggestedMealTarget();
+  }
+  return state.mealTargets[date];
+}
+function getMeals(date){
+  const arr = state.mealsByDate[date];
+  return Array.isArray(arr) ? arr : [];
+}
+function setMeals(date, arr){
+  state.mealsByDate[date] = arr;
+}
+function sumMeals(meals){
+  let cal=0, p=0, c=0, f=0;
+  meals.forEach(m=>{
+    cal += Number.isFinite(m.cal) ? m.cal : 0;
+    p += Number.isFinite(m.protein) ? m.protein : 0;
+    c += Number.isFinite(m.carbs) ? m.carbs : 0;
+    f += Number.isFinite(m.fat) ? m.fat : 0;
+  });
+  return {cal, p, c, f};
+}
+
+function renderMeals(){
+  const date = getMealDate();
+  $("mealDate").value = date;
+
+  const target = ensureMealTarget(date);
+  $("mealTarget").value = target;
+
+  const meals = getMeals(date);
+  const totals = sumMeals(meals);
+
+  const remaining = Math.max(0, target - totals.cal);
+  $("mealSummary").textContent = `${t("total")}: ${fmtInt(totals.cal)} kcal • P/C/F: ${fmtNum(round(totals.p,0))}/${fmtNum(round(totals.c,0))}/${fmtNum(round(totals.f,0))}`;
+  $("mealRemaining").textContent = `${t("remaining")}: ${fmtInt(remaining)} kcal • ${t("ofTarget")}: ${fmtInt(target)}`;
+
+  const pct = target > 0 ? clamp((totals.cal/target)*100, 0, 140) : 0;
+  $("mealBar").style.width = `${pct}%`;
+
+  // table
+  const tbody = $("mealsTable").querySelector("tbody");
+  tbody.innerHTML = "";
+  if(meals.length === 0){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="5" class="muted small">${state.settings.lang==="ar" ? "لا توجد وجبات بعد." : "No meals yet."}</td>`;
+    tbody.appendChild(tr);
+  } else {
+    meals.sort((a,b)=> (a.time||"").localeCompare(b.time||""));
+    meals.forEach(m=>{
+      const tr = document.createElement("tr");
+      const macros = `${Number.isFinite(m.protein)?round(m.protein,0):0}/${Number.isFinite(m.carbs)?round(m.carbs,0):0}/${Number.isFinite(m.fat)?round(m.fat,0):0}`;
+      tr.innerHTML = `
+        <td>${escapeHtml(m.name || "—")}</td>
+        <td style="font-family:var(--mono)">${m.time ? escapeHtml(m.time) : "—"}</td>
+        <td style="font-family:var(--mono)">${fmtInt(m.cal)}</td>
+        <td style="font-family:var(--mono)">${macros}</td>
+        <td><button class="danger" data-del="${m.id}">${t("del")}</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // bind delete
+  tbody.querySelectorAll("button[data-del]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.getAttribute("data-del");
+      const arr = getMeals(date).filter(x=> String(x.id) !== String(id));
+      setMeals(date, arr);
+      saveState();
+      renderMeals();
+    });
+  });
+}
+function initMealsUI(){
+  // Ensure date input is set
+  if(!$("mealDate").value){
+    $("mealDate").value = todayISO();
+  }
+  // Auto target set per day
+  const date = getMealDate();
+  ensureMealTarget(date);
+  renderMeals();
+}
+
+/* =========================
+   Chart (no libraries)
+========================= */
+function drawChart(){
+  const canvas = $("chart");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const plan = state.plan;
+  if(!plan){
+    ctx.font = "16px " + getComputedStyle(document.body).fontFamily;
+    ctx.fillStyle = "rgba(128,128,128,0.9)";
+    ctx.fillText(t("noPlan"), 20, 40);
+    $("chartLegend").textContent = "—";
+    $("latestStatus").textContent = "—";
+    return;
+  }
+
+  const target = plan.rows.map(r => r.targetWeight);
+  const actual = [];
+  for(let wk=1; wk<=26; wk++){
+    const w = state.logs[String(wk)]?.weight;
+    actual.push(Number.isFinite(w) ? w : null);
+  }
+
+  const allVals = target.concat(actual.filter(v=>v!=null));
+  let minV = Math.min(...allVals) - 2;
+  let maxV = Math.max(...allVals) + 2;
+  if(!Number.isFinite(minV) || !Number.isFinite(maxV) || minV===maxV){
+    minV = plan.rows[25].targetWeight - 5;
+    maxV = plan.rows[0].targetWeight + 5;
+  }
+
+  const pad = {l:55, r:16, t:16, b:40};
+  const x0 = pad.l, y0 = pad.t;
+  const x1 = W - pad.r, y1 = H - pad.b;
+
+  const x = (i)=> x0 + (x1-x0) * (i/25);
+  const y = (v)=> y1 - (y1-y0) * ((v - minV) / (maxV - minV));
+
+  ctx.globalAlpha = 0.7;
+  ctx.strokeStyle = "rgba(128,128,128,0.25)";
+  ctx.lineWidth = 1;
+  for(let i=0;i<=5;i++){
+    const yy = y0 + (y1-y0)*(i/5);
+    ctx.beginPath(); ctx.moveTo(x0, yy); ctx.lineTo(x1, yy); ctx.stroke();
+  }
+  for(let i=0;i<=5;i++){
+    const xx = x0 + (x1-x0)*(i/5);
+    ctx.beginPath(); ctx.moveTo(xx, y0); ctx.lineTo(xx, y1); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "rgba(128,128,128,0.9)";
+  ctx.font = "12px " + getComputedStyle(document.body).fontFamily;
+  for(let i=0;i<=5;i++){
+    const v = minV + (maxV-minV)*(i/5);
+    const yy = y(v);
+    ctx.fillText(String(round(v,0)), 10, yy+4);
+  }
+  for(let i=0;i<=5;i++){
+    const idx = Math.round(25*(i/5));
+    const lbl = state.settings.lang==="ar" ? `أ${idx+1}` : `W${idx+1}`;
+    ctx.fillText(lbl, x(idx)-10, H-16);
+  }
+
+  ctx.strokeStyle = "rgba(96,165,250,0.95)";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  target.forEach((v,i)=>{
+    const xx = x(i), yy = y(v);
+    if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+  });
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(34,197,94,0.95)";
+  ctx.fillStyle = "rgba(34,197,94,0.95)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  let started = false;
+  actual.forEach((v,i)=>{
+    if(v==null) return;
+    const xx = x(i), yy = y(v);
+    if(!started){ ctx.moveTo(xx,yy); started = true; }
+    else ctx.lineTo(xx,yy);
+  });
+  if(started) ctx.stroke();
+
+  actual.forEach((v,i)=>{
+    if(v==null) return;
+    const xx = x(i), yy = y(v);
+    ctx.beginPath(); ctx.arc(xx,yy,4.2,0,Math.PI*2); ctx.fill();
+  });
+
+  $("chartLegend").textContent = t("legend");
+
+  let lastWk = 0, lastVal = null;
+  for(let wk=26; wk>=1; wk--){
+    const v = state.logs[String(wk)]?.weight;
+    if(Number.isFinite(v)){ lastWk = wk; lastVal = v; break; }
+  }
+  if(lastWk){
+    const tar = plan.rows[lastWk-1].targetWeight;
+    const diff = round(lastVal - tar, 1);
+    $("latestStatus").textContent = diff <= 0
+      ? t("ahead", {x: Math.abs(diff), w: lastWk})
+      : t("behind", {x: diff, w: lastWk});
+  } else {
+    $("latestStatus").textContent = t("addWeekly");
+  }
+}
+
+/* =========================
+   Actions
+========================= */
+function calculateAndGenerate(){
+  const inputs = readInputs();
+  state.plan = generatePlan(inputs);
+  saveState();
+  renderResults(inputs);
+  renderPlan();
+  renderLogs();
+  drawChart();
+
+  // Meals: suggest new target for today if none set yet
+  const d = getMealDate();
+  if(!Number.isFinite(state.mealTargets[d])){
+    state.mealTargets[d] = state.plan.calories;
+    saveState();
+  }
+  renderMeals();
+}
+
+$("btnCalc").addEventListener("click", calculateAndGenerate);
+$("btnRegen").addEventListener("click", calculateAndGenerate);
+
+$("btnSave").addEventListener("click", ()=>{
+  readInputs();
+  saveState();
+  alert(t("saved"));
+});
+
+$("btnReset").addEventListener("click", ()=>{
+  if(!confirm(t("confirmAll"))) return;
+  localStorage.removeItem(STORE_KEY);
+  state = loadState();
+  bindInputsFromState();
+  applyTheme();
+  applyLanguage();
+});
+
+$("btnClearLogs").addEventListener("click", ()=>{
+  if(!confirm(t("confirmLogs"))) return;
+  state.logs = {};
+  saveState();
+  renderLogs();
+  drawChart();
+});
+
+$("btnAddLog").addEventListener("click", ()=>{
+  if(!state.plan){ alert(t("needPlanCalc")); return; }
+  const wk = parseInt($("logWeek").value,10);
+  const w  = parseFloat($("logWeight").value);
+  const wa = parseFloat($("logWaist").value);
+  const notes = $("logNotes").value?.trim() || "";
+
+  if(!(wk>=1 && wk<=26)){ alert(t("weekRange")); return; }
+  if(!Number.isFinite(w)){ alert(t("enterWeight")); return; }
+
+  state.logs[String(wk)] = { weight: round(w,1), waist: Number.isFinite(wa) ? round(wa,1) : null, notes };
+  saveState();
+  renderLogs();
+  drawChart();
+  alert(t("updated"));
+});
+
+$("btnAutoNext").addEventListener("click", ()=>{
+  const wk = parseInt($("logWeek").value,10);
+  $("logWeek").value = String(clamp(wk+1, 1, 26));
+  $("logWeight").value = "";
+  $("logWaist").value = "";
+  $("logNotes").value = "";
+});
+
+/* =========================
+   Meals actions
+========================= */
+$("mealDate").addEventListener("change", ()=>{
+  const date = getMealDate();
+  ensureMealTarget(date);
+  saveState();
+  renderMeals();
+});
+$("btnSaveMealTarget").addEventListener("click", ()=>{
+  const date = getMealDate();
+  const target = parseFloat($("mealTarget").value);
+  if(Number.isFinite(target) && target > 0){
+    state.mealTargets[date] = Math.round(target);
+    saveState();
+    renderMeals();
+    alert(t("mealSaved"));
+  }
+});
+$("btnAddMeal").addEventListener("click", ()=>{
+  const date = getMealDate();
+  const name = ($("mealName").value || "").trim();
+  const time = ($("mealTime").value || "").trim();
+  const cal = parseFloat($("mealCalories").value);
+  const protein = parseFloat($("mealProtein").value);
+  const carbs = parseFloat($("mealCarbs").value);
+  const fat = parseFloat($("mealFat").value);
+
+  if(!name){ alert(t("mealNeedName")); return; }
+  if(!Number.isFinite(cal)){ alert(t("mealNeedCal")); return; }
+
+  const meals = getMeals(date);
+  meals.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+    name,
+    time: time || "",
+    cal: Math.round(cal),
+    protein: Number.isFinite(protein) ? round(protein,1) : 0,
+    carbs: Number.isFinite(carbs) ? round(carbs,1) : 0,
+    fat: Number.isFinite(fat) ? round(fat,1) : 0
+  });
+  setMeals(date, meals);
+  saveState();
+
+  // clear entry
+  $("mealName").value = "";
+  $("mealTime").value = "";
+  $("mealCalories").value = "";
+  $("mealProtein").value = "";
+  $("mealCarbs").value = "";
+  $("mealFat").value = "";
+
+  renderMeals();
+  alert(t("mealAdded"));
+});
+$("btnClearMeals").addEventListener("click", ()=>{
+  if(!confirm(t("confirmMealClear"))) return;
+  const date = getMealDate();
+  setMeals(date, []);
+  saveState();
+  renderMeals();
+  alert(t("mealCleared"));
+});
+
+function downloadText(filename, text){
+  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 250);
+}
+function toCSV(rows, headers){
+  const esc = (v)=> {
+    const s = (v==null ? "" : String(v));
+    const q = s.includes(",") || s.includes('"') || s.includes("\n");
+    return q ? `"${s.replaceAll('"','""')}"` : s;
+  };
+  const lines = [];
+  lines.push(headers.map(esc).join(","));
+  rows.forEach(r=> lines.push(headers.map(h=>esc(r[h])).join(",")));
+  return lines.join("\n");
+}
+$("btnExportMeals").addEventListener("click", ()=>{
+  const date = getMealDate();
+  const meals = getMeals(date);
+  const rows = meals.map(m=>({
+    date,
+    time: m.time || "",
+    name: m.name || "",
+    calories: m.cal || 0,
+    protein: m.protein || 0,
+    carbs: m.carbs || 0,
+    fat: m.fat || 0
+  }));
+  const name = state.settings.lang==="ar" ? `meals_${date}.csv` : `meals_${date}.csv`;
+  downloadText(name, toCSV(rows, ["date","time","name","calories","protein","carbs","fat"]));
+});
+
+/* =========================
+   Tabs
+========================= */
+document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected","false"));
+    btn.setAttribute("aria-selected","true");
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(tab).classList.add("active");
+    if(tab==="track") drawChart();
+    if(tab==="meals") renderMeals();
+  });
+});
+
+/* =========================
+   Export / Print
+========================= */
+$("btnExportPlan").addEventListener("click", ()=>{
+  if(!state.plan){ alert(t("needPlan")); return; }
+  const headers = ["week","targetWeight","calories","protein","walkDays","walkMins","stepsDay","note"];
+  const rows = state.plan.rows.map(r=>({...r}));
+  const name = state.settings.lang==="ar" ? "plan_6months_walkonly.csv" : "plan_6months_walkonly_en.csv";
+  downloadText(name, toCSV(rows, headers));
+});
+$("btnExportLogs").addEventListener("click", ()=>{
+  if(!state.plan){ alert(t("needPlan")); return; }
+  const rows = [];
+  for(let wk=1; wk<=26; wk++){
+    const log = state.logs[String(wk)] || {};
+    rows.push({
+      week: wk,
+      actualWeight: log.weight ?? "",
+      targetWeight: state.plan.rows[wk-1]?.targetWeight ?? "",
+      waist: log.waist ?? "",
+      notes: log.notes ?? ""
+    });
+  }
+  const name = state.settings.lang==="ar" ? "weekly_logs_walkonly.csv" : "weekly_logs_walkonly_en.csv";
+  downloadText(name, toCSV(rows, ["week","actualWeight","targetWeight","waist","notes"]));
+});
+$("btnPrint").addEventListener("click", ()=> window.print());
+
+/* =========================
+   Language / Theme buttons
+========================= */
+$("btnLang").addEventListener("click", cycleLang);
+$("btnTheme").addEventListener("click", cycleTheme);
+$("btnLangDock").addEventListener("click", cycleLang);
+$("btnThemeDock").addEventListener("click", cycleTheme);
+
+/* =========================
+   Init
+========================= */
+(function init(){
+  bindInputsFromState();
+
+  // Set default meal date (today) if empty
+  $("mealDate").value = todayISO();
+
+  applyTheme();
+  applyLanguage();
+
+  renderResults(state.inputs);
+  if(state.plan){ renderPlan(); renderLogs(); }
+  drawChart();
+
+  initMealsUI();
+})();
+
+  // -----------------------------
+  // PWA Offline (Service Worker)
+  // -----------------------------
+  (function registerSW(){
+    if (!("serviceWorker" in navigator)) return;
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});
+    });
+  })();
+</script>
+</body>
+</html>
